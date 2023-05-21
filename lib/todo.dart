@@ -1,22 +1,22 @@
 class Todo {
   String title;
-  bool checkFlag;
+  bool cFlag;
 
   /// コンストラクタ
   Todo(
     this.title,
-    this.checkFlag,
+    this.cFlag,
   );
 
   Map toJson() {
     return {
       'title': title,
-      "checkFlag": checkFlag,
+      "cFlag": cFlag,
     };
   }
 
   Todo.fromJson(Map json) {
     title = json['title'];
-    checkFlag = json["checkFlag"];
+    cFlag = json["cFlag"];
   }
 }

@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
-/*ローカル保存
+// ローカル保存
 import 'package:shared_preferences/shared_preferences.dart';
-import 'dart:convert';
-import 'todo.dart';
-*/
+
+//チェック管理の保存の仕方
 
 class TodoList extends StatefulWidget {
   @override
@@ -14,27 +13,37 @@ class _TodoListState extends State<TodoList> {
   String task = '';
   final TextEditingController ctrl = TextEditingController();
   List<String> todoList = ['aaa', "bbb"];
+  List<bool> checkFlags = [false, false, true, false, true];
   int indent = 0;
   bool addFlag = false;
-  List<bool> checkFlags = [false, false];
+  SharedPreferences prefs;
 
-/*  ローカル保存
-  _setPrefItems(List<String> e) async {
-    final prefs = await SharedPreferences.getInstance();
-    prefs.setStringList("title", e);
-    print("e:$e");
+  Future<void> getSharedPreference() async {
+    prefs = await SharedPreferences.getInstance();
   }
 
-  _getPrefItems() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    setState(() {
-      todoList = prefs.getStringList("title") ?? [];
-      print("e:$todoList");    
+// /*ローカル保存
+  _setPrefItems(List<String> e, key) async {
+    await getSharedPreference();
+    prefs.setStringList(key, e);
+  }
 
+//ローカルから取得
+  _getPrefItems(key) async {
+    await getSharedPreference();
+    setState(() {
+      // e = prefs.getStringList(key) ?? [];
+      todoList = prefs.getStringList(key) ?? [];
     });
   }
-  */
 
+//ローカル保存削除
+  _clearPrefItems(key) async {
+    await getSharedPreference();
+    await prefs.remove(key);
+  }
+
+// */リスト表示
   Widget showList(e) {
     return ListView.builder(
       itemCount: e.length,
@@ -72,17 +81,15 @@ class _TodoListState extends State<TodoList> {
     );
   }
 
-/*  ローカル保存
+//再起動時実行
   @override
   void initState() {
     super.initState();
-    // TODO: implement initState
     setState(() {
-      _getPrefItems();
+      _getPrefItems("list");
       showList(todoList);
     });
   }
-  */
 
   @override
   Widget build(BuildContext context) {
@@ -101,7 +108,7 @@ class _TodoListState extends State<TodoList> {
                 print('value:$value');
                 task = value;
                 setState(() {
-                  task.length > 0 ? addFlag = true : addFlag = false;
+                  task.trim().length > 0 ? addFlag = true : addFlag = false;
                 });
               },
             ),
@@ -115,7 +122,7 @@ class _TodoListState extends State<TodoList> {
                         ctrl.clear();
                         task = "";
                         addFlag = false;
-                        // _setPrefItems(todoList); ローカル保存
+                        _setPrefItems(todoList, "list"); //ローカル保存
                         print(todoList);
                       }),
                     },
@@ -127,6 +134,11 @@ class _TodoListState extends State<TodoList> {
                     backgroundColor: Colors.grey[600],
                     child: Icon(Icons.add)),
             Expanded(child: showList(todoList)),
+            IconButton(
+              color: Colors.red[400],
+              icon: Icon(Icons.delete),
+              onPressed: (() => _clearPrefItems("list")),
+            )
           ],
         ),
       ),
